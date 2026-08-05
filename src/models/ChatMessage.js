@@ -44,4 +44,7 @@ const chatMessageSchema = new mongoose.Schema(
   }
 );
 
+chatMessageSchema.index({ sessionId: 1, timestamp: 1 });
+chatMessageSchema.index({ senderId: 1 });
+
 module.exports = mongoose.model('ChatMessage', chatMessageSchema);

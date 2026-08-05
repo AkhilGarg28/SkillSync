@@ -26,4 +26,7 @@ const matchSchema = new mongoose.Schema(
   }
 );
 
+matchSchema.index({ user1Id: 1, user2Id: 1 });
+matchSchema.index({ status: 1 });
+
 module.exports = mongoose.model('Match', matchSchema);
