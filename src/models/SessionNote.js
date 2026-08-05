@@ -30,4 +30,6 @@ const sessionNoteSchema = new mongoose.Schema(
   }
 );
 
+sessionNoteSchema.index({ sessionId: 1 });
+
 module.exports = mongoose.model('SessionNote', sessionNoteSchema);

@@ -44,4 +44,8 @@ const sessionSchema = new mongoose.Schema(
   }
 );
 
+sessionSchema.index({ user1Id: 1, status: 1 });
+sessionSchema.index({ user2Id: 1, status: 1 });
+sessionSchema.index({ status: 1, confirmedTime: 1 });
+
 module.exports = mongoose.model('Session', sessionSchema);
