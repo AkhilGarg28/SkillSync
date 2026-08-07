@@ -6,25 +6,44 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "dev:client": "vite",
+    "build:client": "vite build",
     "test": "jest --detectOpenHandles --forceExit"
   },
   "keywords": [],
   "author": "AkhilGarg28",
   "license": "ISC",
   "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
+    "axios": "^1.7.2",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.419.0",
     "mongoose": "^8.5.1",
     "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.14",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.52.1",
+    "react-router-dom": "^6.26.0",
     "socket.io": "^4.7.5",
-    "socket.io-client": "^4.7.5"
+    "socket.io-client": "^4.7.5",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
     "jest": "^29.7.0",
-    "supertest": "^7.0.0"
+    "nodemon": "^3.1.14",
+    "postcss": "^8.4.39",
+    "supertest": "^7.0.0",
+    "tailwindcss": "^3.4.6",
+    "vite": "^5.3.4"
   }
 }
