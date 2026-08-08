@@ -6,8 +6,8 @@ const verifyParticipant = async (sessionId, userId) => {
   const session = await Session.findById(sessionId);
   if (!session) return false;
 
-  const u1 = session.user1Id ? session.user1Id.toString() : '';
-  const u2 = session.user2Id ? session.user2Id.toString() : '';
+  const u1 = session.user1Id ? session.user1Id.toString() : (session.user1 ? session.user1.toString() : '');
+  const u2 = session.user2Id ? session.user2Id.toString() : (session.user2 ? session.user2.toString() : '');
   const current = userId.toString();
 
   return current === u1 || current === u2;

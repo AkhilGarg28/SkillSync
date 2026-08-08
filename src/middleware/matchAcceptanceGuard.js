@@ -1,13 +1,14 @@
 const Match = require('../models/Match');
 const Session = require('../models/Session');
+const ChatMessage = require('../models/ChatMessage');
 
 async function verifyMatchAcceptance(matchId, sessionId) {
   if (matchId) {
     const match = await Match.findById(matchId);
-    if (match && match.status === 'accepted') {
+    if (match && (match.status === 'accepted' || match.status === 'ACCEPTED')) {
       return { accepted: true, match };
     }
-    if (match && match.status !== 'accepted') {
+    if (match && match.status !== 'accepted' && match.status !== 'ACCEPTED') {
       return { accepted: false, reason: `Match status is '${match.status}'. Chat is locked until match is accepted.` };
     }
   }
@@ -17,7 +18,7 @@ async function verifyMatchAcceptance(matchId, sessionId) {
     if (session) {
       if (session.matchId) {
         const match = await Match.findById(session.matchId);
-        if (match && match.status === 'accepted') {
+        if (match && (match.status === 'accepted' || match.status === 'ACCEPTED')) {
           return { accepted: true, session, match };
         }
       }
@@ -36,8 +37,16 @@ async function verifyMatchAcceptance(matchId, sessionId) {
 
 const checkMatchAccepted = async (req, res, next) => {
   try {
-    const matchId = req.body.matchId || req.params.matchId || req.query.matchId;
-    const sessionId = req.body.sessionId || req.params.sessionId || req.query.sessionId;
+    let matchId = req.body.matchId || req.params.matchId || req.query.matchId;
+    let sessionId = req.body.sessionId || req.params.sessionId || req.query.sessionId;
+
+    if (!matchId && !sessionId && req.params.id) {
+      const msg = await ChatMessage.findById(req.params.id);
+      if (msg) {
+        matchId = msg.matchId;
+        sessionId = msg.sessionId;
+      }
+    }
 
     if (!matchId && !sessionId) {
       return next();

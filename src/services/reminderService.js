@@ -44,7 +44,7 @@ async function checkAndSendSessionReminders() {
 
     for (const session of upcomingSessions) {
       const sessionTime = session.confirmedTime || session.proposedTime;
-      const participants = [session.user1Id, session.user2Id].filter(Boolean);
+      const participants = [session.user1Id || session.user1, session.user2Id || session.user2].filter(Boolean);
 
       for (const userId of participants) {
         const existingNotification = await Notification.findOne({
