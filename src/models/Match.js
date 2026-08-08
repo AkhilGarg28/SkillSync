@@ -40,4 +40,7 @@ matchSchema.pre('save', function (next) {
   next();
 });
 
+matchSchema.index({ user1Id: 1, user2Id: 1 });
+matchSchema.index({ status: 1 });
+
 module.exports = mongoose.models.Match || mongoose.model('Match', matchSchema);

@@ -7,6 +7,11 @@ const connectDB = require('./src/config/db');
 const { initSocket } = require('./src/sockets/chatSocket');
 const { startReminderCron } = require('./src/services/reminderService');
 
+const passport = require('passport');
+require('./src/config/passport');
+
+const authRoutes = require('./src/routes/authRoutes');
+const userRoutes = require('./src/routes/userRoutes');
 const matchRoutes = require('../backend/routes/match.route');
 const sessionRoutes = require('./src/routes/sessionRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
@@ -21,18 +26,28 @@ initSocket(server);
 
 app.use(cors());
 app.use(express.json());
+app.use(passport.initialize());
 
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/matches', matchRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/chat-messages', chatRoutes);
 app.use('/api/session-notes', noteRoutes);
 app.use('/api/notifications', notificationRoutes);
 
-app.use(errorHandler);
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    message: 'SkillSync Backend Running'
+  });
+});
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'SkillSync Module 3 API is running' });
 });
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
