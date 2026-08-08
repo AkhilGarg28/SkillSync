@@ -5,7 +5,7 @@ import * as authService from '../services/authService';
 // Initialize Axios Request Interceptor
 axios.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('skillsync_token');
+    const token = localStorage.getItem('skillsync_token') || localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
     const initializeAuth = () => {
       try {
         const storedUser = localStorage.getItem('skillsync_user');
-        const storedToken = localStorage.getItem('skillsync_token');
+        const storedToken = localStorage.getItem('skillsync_token') || localStorage.getItem('token');
 
         if (storedUser && storedToken) {
           setUser(JSON.parse(storedUser));
@@ -35,6 +35,7 @@ export const AuthProvider = ({ children }) => {
         console.error('Failed to parse stored user:', error);
         localStorage.removeItem('skillsync_user');
         localStorage.removeItem('skillsync_token');
+        localStorage.removeItem('token');
       } finally {
         setLoading(false);
       }
@@ -50,6 +51,7 @@ export const AuthProvider = ({ children }) => {
       const { token, user: userData } = response.data;
 
       localStorage.setItem('skillsync_token', token);
+      localStorage.setItem('token', token);
       localStorage.setItem('skillsync_user', JSON.stringify(userData));
       setUser(userData);
       return response;
@@ -65,6 +67,7 @@ export const AuthProvider = ({ children }) => {
       const { token, user: userData } = response.data;
 
       localStorage.setItem('skillsync_token', token);
+      localStorage.setItem('token', token);
       localStorage.setItem('skillsync_user', JSON.stringify(userData));
       setUser(userData);
       return response;

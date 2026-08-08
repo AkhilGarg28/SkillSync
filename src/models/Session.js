@@ -32,6 +32,10 @@ const sessionSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    zoomUrl: {
+      type: String,
+      default: '',
+    },
     notes: [
       {
         type: mongoose.Schema.Types.ObjectId,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import * as userService from '../services/userService';
 import Badge from '../components/Badges/Badge';
 import { SkillsList } from '../components/Skills/SkillsComponents';
@@ -8,6 +8,7 @@ import { MapPin, Globe, Sparkles, Award, GraduationCap, BookOpen, Calendar, Arro
 
 const PublicProfile = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [badges, setBadges] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,28 +50,28 @@ const PublicProfile = () => {
         <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl max-w-sm">
           <p className="text-sm font-semibold">{error || 'Failed to display user profile.'}</p>
         </div>
-        <Link
-          to="/"
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-850 text-xs font-bold text-slate-400 hover:text-slate-200 transition duration-300"
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-xs font-bold text-slate-400 hover:text-slate-200 transition duration-300 cursor-pointer"
         >
           <ArrowLeft size={14} />
           Go Back
-        </Link>
+        </button>
       </div>
     );
   }
 
   return (
     <div className="space-y-8 select-none">
-      {/* Return to Dashboard header */}
+      {/* Return header */}
       <div className="flex justify-start">
-        <Link
-          to="/"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-850 text-xs font-bold text-slate-400 hover:text-slate-200 transition duration-300"
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-xs font-bold text-slate-400 hover:text-slate-200 transition duration-300 cursor-pointer"
         >
           <ArrowLeft size={14} />
-          Back to Dashboard
-        </Link>
+          Back to Candidates
+        </button>
       </div>
 
       {/* Header Profile Info card */}

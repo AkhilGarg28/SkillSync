@@ -84,10 +84,14 @@ function escapeRegex(string) {
 exports.createChatMessage = async (req, res) => {
   try {
     const { sessionId, matchId, senderId, messageText, fileAttachment } = req.body;
+    const finalSenderId = senderId || (req.user ? (req.user._id || req.user.id) : null);
+    const finalMatchId = matchId || sessionId;
+    const finalSessionId = sessionId || matchId;
+
     const message = new ChatMessage({
-      sessionId,
-      matchId,
-      senderId: senderId || (req.user ? req.user.id : null),
+      sessionId: finalSessionId,
+      matchId: finalMatchId,
+      senderId: finalSenderId,
       messageText: messageText || '',
       fileAttachment: fileAttachment || null,
     });
@@ -105,7 +109,9 @@ exports.uploadChatFile = async (req, res) => {
     }
 
     const { sessionId, matchId } = req.body;
-    const senderId = req.user ? req.user.id : req.body.senderId;
+    const senderId = req.user ? (req.user._id || req.user.id) : req.body.senderId;
+    const finalMatchId = matchId || sessionId;
+    const finalSessionId = sessionId || matchId;
 
     const fileAttachment = {
       fileName: req.file.originalname,
@@ -115,8 +121,8 @@ exports.uploadChatFile = async (req, res) => {
     };
 
     const message = new ChatMessage({
-      sessionId,
-      matchId,
+      sessionId: finalSessionId,
+      matchId: finalMatchId,
       senderId,
       messageText: req.body.messageText || '',
       fileAttachment,
@@ -206,7 +212,9 @@ exports.getChatMessagesByUser = async (req, res) => {
 exports.getChatMessagesBySession = async (req, res) => {
   try {
     const sessionId = req.params.sessionId;
-    const messages = await ChatMessage.find({ sessionId }).sort({ timestamp: 1 });
+    const messages = await ChatMessage.find({
+      $or: [{ sessionId }, { matchId: sessionId }],
+    }).sort({ timestamp: 1 });
     res.status(200).json({ success: true, count: messages.length, data: messages });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

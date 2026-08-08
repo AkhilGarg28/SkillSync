@@ -56,7 +56,7 @@ function validateStateTransition(currentStatus, action, session) {
 
 exports.proposeSession = async (req, res) => {
   try {
-    const {
+    let {
       user1Id,
       user2Id,
       matchId,
@@ -65,6 +65,17 @@ exports.proposeSession = async (req, res) => {
       user2Availability,
       durationMinutes = 60,
     } = req.body;
+
+    if (matchId && (!user1Id || !user2Id)) {
+      const Match = require('../models/Match');
+      const matchDoc = await Match.findById(matchId);
+      if (matchDoc) {
+        user1Id = user1Id || matchDoc.user1Id || matchDoc.user1;
+        user2Id = user2Id || matchDoc.user2Id || matchDoc.user2;
+      }
+    }
+
+    user1Id = user1Id || (req.user ? req.user.id : null);
 
     if (!user1Id || !user2Id || !proposedTime) {
       return res.status(400).json({
@@ -96,6 +107,8 @@ exports.proposeSession = async (req, res) => {
       proposedTime: new Date(proposedTime),
       status: 'requested',
     });
+
+    newSession.videoCallLink = generateVideoCallLink(newSession._id);
 
     const savedSession = await newSession.save();
     return res.status(201).json({ success: true, data: savedSession });
@@ -185,11 +198,44 @@ exports.updateSession = async (req, res) => {
 
 exports.getSessionsByUser = async (req, res) => {
   try {
-    const userId = req.params.userId;
-    const sessions = await Session.find({
+    const userId = req.params.userId || (req.user ? req.user.id : null);
+    let query = Session.find({
       $or: [{ user1Id: userId }, { user2Id: userId }],
     }).sort({ createdAt: -1 });
+
+    if (typeof query.populate === 'function') {
+      query = query.populate('user1Id', 'name email profilePhoto city timezone')
+                   .populate('user2Id', 'name email profilePhoto city timezone');
+    }
+
+    const sessions = await query;
     res.status(200).json({ success: true, count: sessions.length, data: sessions });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+exports.updateZoomLink = async (req, res) => {
+  try {
+    const { zoomUrl } = req.body;
+    if (!zoomUrl) {
+      return res.status(400).json({ success: false, error: 'zoomUrl is required.' });
+    }
+
+    const session = await Session.findById(req.params.id);
+    if (!session) {
+      return res.status(404).json({ success: false, error: 'Session not found.' });
+    }
+
+    session.zoomUrl = zoomUrl;
+    session.videoCallLink = zoomUrl;
+    await session.save();
+
+    const populatedSession = await Session.findById(session._id)
+      .populate('user1Id', 'name email profilePhoto city timezone')
+      .populate('user2Id', 'name email profilePhoto city timezone');
+
+    res.status(200).json({ success: true, message: 'Zoom URL updated successfully.', data: populatedSession });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

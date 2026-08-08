@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { protect } = require('../middleware/auth');
 const {
   createSession,
   getSessionById,
@@ -7,10 +8,13 @@ const {
   getSessionsByUser,
   proposeSession,
   respondToSession,
+  updateZoomLink,
 } = require('../controllers/sessionController');
 
+router.get('/my-sessions', protect, getSessionsByUser);
 router.post('/propose', proposeSession);
 router.put('/:id/respond', respondToSession);
+router.put('/:id/zoom-link', protect, updateZoomLink);
 
 router.post('/', createSession);
 router.get('/:id', getSessionById);

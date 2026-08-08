@@ -15,7 +15,6 @@ const chatMessageSchema = new mongoose.Schema(
     sessionId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Session',
-      required: true,
     },
     matchId: {
       type: mongoose.Schema.Types.ObjectId,

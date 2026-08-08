@@ -1,13 +1,19 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { User, Sparkles, Compass, Settings, ShieldCheck, Heart } from 'lucide-react';
+import { LayoutGrid, User, Compass, Users, MessageSquare, MessageCircle, Calendar, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = ({ isOpen, onClose }) => {
   const { user } = useAuth();
 
   const links = [
+    { to: '/dashboard', icon: LayoutGrid, label: 'Dashboard' },
     { to: '/profile', icon: User, label: 'My Profile' },
+    { to: '/matches', icon: Compass, label: 'Explore Matches' },
+    { to: '/tracker', icon: Users, label: 'My Matches' },
+    { to: '/sessions', icon: Calendar, label: 'My Sessions' },
+    { to: '/chat', icon: MessageSquare, label: 'In-App Chat' },
+    { to: '/forum', icon: MessageCircle, label: 'Community Forum' },
     { to: '/onboarding', icon: Sparkles, label: 'Onboarding Step' },
   ];
 
@@ -32,6 +38,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <NavLink
               key={link.to}
               to={link.to}
+              end={link.to === '/profile' || link.to === '/dashboard'}
               onClick={onClose}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold border transition duration-300 ${

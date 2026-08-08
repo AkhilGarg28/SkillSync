@@ -8,6 +8,7 @@ const {
   addLearnSkill,
 } = require('../controllers/userController');
 const { getUserBadges } = require('../controllers/badgeController');
+const { getUserReviews } = require('../controllers/reviewController');
 
 // Protect all routes within this router
 router.use(protect);
@@ -18,5 +19,6 @@ router.put('/:id', updateUserProfile);
 router.post('/:id/skills-teach', addTeachSkill);
 router.post('/:id/skills-learn', addLearnSkill);
 router.get('/:id/badges', getUserBadges);
+router.get('/:id/reviews', getUserReviews);
 
 module.exports = router;

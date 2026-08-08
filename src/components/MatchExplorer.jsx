@@ -2,8 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import FilterBar from './FilterBar';
 import MatchRequestModal from './MatchRequestModal';
 import MyMatchesTracker from './MyMatchesTracker';
+import { useAuth } from '../context/AuthContext';
 
-export default function MatchExplorer({ currentUserId = '650000000000000000000001', apiBaseUrl = '/api/matches' }) {
+export default function MatchExplorer({ apiBaseUrl = '/api/matches' }) {
+  const { user } = useAuth();
+  const currentUserId = user?.id;
+  const token = localStorage.getItem('skillsync_token') || localStorage.getItem('token');
+
   const [viewMode, setViewMode] = useState('explore'); // 'explore' | 'myMatches'
   const [matches, setMatches] = useState([]);
   const [groupedMatches, setGroupedMatches] = useState({ pending: [], accepted: [], completed: [], declined: [] });
@@ -21,6 +26,12 @@ export default function MatchExplorer({ currentUserId = '65000000000000000000000
     setTimeout(() => setNotification(null), 4000);
   };
 
+  const getHeaders = () => ({
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(currentUserId ? { 'X-User-Id': currentUserId } : {}),
+  });
+
   const fetchExploreMatches = useCallback(async (pageNum = 1, append = false) => {
     setIsLoading(true);
     try {
@@ -32,7 +43,7 @@ export default function MatchExplorer({ currentUserId = '65000000000000000000000
       query.append('limit', 10);
 
       const res = await fetch(`${apiBaseUrl}/explore?${query.toString()}`, {
-        headers: { 'X-User-Id': currentUserId, 'Content-Type': 'application/json' }
+        headers: getHeaders(),
       });
       const data = await res.json();
       if (data.success) {
@@ -47,13 +58,13 @@ export default function MatchExplorer({ currentUserId = '65000000000000000000000
     } finally {
       setIsLoading(false);
     }
-  }, [filters, apiBaseUrl, currentUserId]);
+  }, [filters, apiBaseUrl, token, currentUserId]);
 
   const fetchMyMatches = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await fetch(`${apiBaseUrl}/mine`, {
-        headers: { 'X-User-Id': currentUserId, 'Content-Type': 'application/json' }
+        headers: getHeaders(),
       });
       const data = await res.json();
       if (data.success) {
@@ -90,8 +101,8 @@ export default function MatchExplorer({ currentUserId = '65000000000000000000000
     try {
       const res = await fetch(`${apiBaseUrl}/request`, {
         method: 'POST',
-        headers: { 'X-User-Id': currentUserId, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ toUserId, matchedSkills, message })
+        headers: getHeaders(),
+        body: JSON.stringify({ toUserId, targetUserId: toUserId, matchedSkills, message })
       });
       const data = await res.json();
       if (data.success) {
@@ -112,7 +123,7 @@ export default function MatchExplorer({ currentUserId = '65000000000000000000000
     try {
       const res = await fetch(`${apiBaseUrl}/${requestId}/respond`, {
         method: 'PUT',
-        headers: { 'X-User-Id': currentUserId, 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify({ action })
       });
       const data = await res.json();
@@ -138,7 +149,7 @@ export default function MatchExplorer({ currentUserId = '65000000000000000000000
       <header style={styles.header}>
         <div>
           <h1 style={styles.appTitle}>⚡ SkillSync Explorer</h1>
-          <p style={styles.tagline}>Peer-to-Peer Skill Swapping Feed (Module 2)</p>
+          <p style={styles.tagline}>Peer-to-Peer Skill Swapping Feed</p>
         </div>
         <div style={styles.navTabs}>
           <button
@@ -173,18 +184,26 @@ export default function MatchExplorer({ currentUserId = '65000000000000000000000
           ) : matches.length === 0 ? (
             <div style={styles.emptyState}>
               <h3 style={styles.emptyTitle}>No Mutual Skill Fits Found</h3>
-              <p style={styles.emptySub}>Try clearing or widening your skill category, timezone, or level filters.</p>
+              <p style={styles.emptySub}>No other registered users found matching your filters.</p>
             </div>
           ) : (
             <>
               <div style={styles.cardGrid}>
                 {matches.map((item) => {
-                  const candidate = item.candidate || {};
+                  const candidate = item.candidate || item;
+                  const candidateId = candidate._id || candidate.id;
+                  const teachSkills = candidate.skillsToTeach || [];
+                  const learnSkills = candidate.skillsToLearn || [];
+
                   return (
-                    <div key={item.userId} style={styles.card}>
+                    <div key={candidateId} style={styles.card}>
                       <div style={styles.cardTop}>
                         <div style={styles.avatar}>
-                          {(candidate.name || 'U').charAt(0).toUpperCase()}
+                          {candidate.profilePhoto ? (
+                            <img src={candidate.profilePhoto} alt={candidate.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                          ) : (
+                            (candidate.name || 'U').charAt(0).toUpperCase()
+                          )}
                         </div>
                         <div style={styles.candidateMeta}>
                           <h3 style={styles.candidateName}>{candidate.name}</h3>
@@ -192,31 +211,56 @@ export default function MatchExplorer({ currentUserId = '65000000000000000000000
                             📍 {candidate.city || 'Remote'} ({candidate.timezone || 'UTC'})
                           </span>
                         </div>
-                        <div style={styles.scoreBadge} title="Match score based on mutual skill overlap and timezone alignment">
-                          ★ {item.matchScore}
-                        </div>
                       </div>
+
+                      {candidate.bio && (
+                        <p style={{ fontSize: '12px', color: '#a6adc8', fontStyle: 'italic', margin: '4px 0 8px 0' }}>
+                          "{candidate.bio}"
+                        </p>
+                      )}
 
                       <div style={styles.skillsSection}>
-                        <h4 style={styles.skillsHeading}>Matched Skills ({item.matchedSkills?.length || 0}):</h4>
+                        <h4 style={styles.skillsHeading}>Teaches:</h4>
                         <div style={styles.skillsList}>
-                          {(item.matchedSkills || []).map((s, idx) => (
-                            <span key={idx} style={styles.skillPill}>
-                              {s.skillName}
-                              <span style={s.direction === 'iTeach' ? styles.pillTagTeach : styles.pillTagLearn}>
-                                {s.direction === 'iTeach' ? 'You Teach' : 'They Teach'}
+                          {teachSkills.length > 0 ? (
+                            teachSkills.map((s, idx) => (
+                              <span key={idx} style={styles.skillPillTeach}>
+                                {s.skillName} ({s.experienceLevel})
                               </span>
-                            </span>
-                          ))}
+                            ))
+                          ) : (
+                            <span style={{ fontSize: '11px', color: '#6c7086' }}>None specified</span>
+                          )}
+                        </div>
+
+                        <h4 style={{ ...styles.skillsHeading, marginTop: '8px' }}>Wants to Learn:</h4>
+                        <div style={styles.skillsList}>
+                          {learnSkills.length > 0 ? (
+                            learnSkills.map((s, idx) => (
+                              <span key={idx} style={styles.skillPillLearn}>
+                                {s.skillName} ({s.desiredLevel})
+                              </span>
+                            ))
+                          ) : (
+                            <span style={{ fontSize: '11px', color: '#6c7086' }}>None specified</span>
+                          )}
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => handleOpenRequestModal(item)}
-                        style={styles.requestBtn}
-                      >
-                        🤝 Request Swap
-                      </button>
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                        <a
+                          href={`/profile/${candidateId}`}
+                          style={styles.viewProfileBtn}
+                        >
+                          👤 View Profile
+                        </a>
+                        <button
+                          onClick={() => handleOpenRequestModal({ candidate, matchedSkills: item.matchedSkills })}
+                          style={styles.requestBtn}
+                        >
+                          🤝 Request Swap
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -295,9 +339,12 @@ const styles = {
   skillsHeading: { margin: '0 0 8px 0', fontSize: '12px', color: '#a6adc8', textTransform: 'uppercase' },
   skillsList: { display: 'flex', flexWrap: 'wrap', gap: '6px' },
   skillPill: { backgroundColor: '#313244', color: '#cdd6f4', padding: '4px 8px', borderRadius: '8px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' },
+  skillPillTeach: { backgroundColor: '#a6e3a1', color: '#11111b', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '600' },
+  skillPillLearn: { backgroundColor: '#89b4fa', color: '#11111b', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '600' },
   pillTagTeach: { backgroundColor: '#a6e3a1', color: '#11111b', padding: '2px 5px', borderRadius: '4px', fontSize: '9px', fontWeight: 'bold' },
   pillTagLearn: { backgroundColor: '#89b4fa', color: '#11111b', padding: '2px 5px', borderRadius: '4px', fontSize: '9px', fontWeight: 'bold' },
-  requestBtn: { padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#a6e3a1', color: '#11111b', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer', transition: 'background-color 0.2s ease' },
+  viewProfileBtn: { flex: 1, textDecoration: 'none', textAlign: 'center', padding: '10px', borderRadius: '8px', border: '1px solid #313244', backgroundColor: '#181825', color: '#cdd6f4', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' },
+  requestBtn: { flex: 1, padding: '10px', borderRadius: '8px', border: 'none', backgroundColor: '#a6e3a1', color: '#11111b', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', transition: 'background-color 0.2s ease' },
   paginationContainer: { display: 'flex', justifyContent: 'center', marginTop: '30px' },
   loadMoreBtn: { padding: '12px 28px', borderRadius: '8px', border: '1px solid #89b4fa', backgroundColor: '#181825', color: '#89b4fa', fontWeight: 'bold', cursor: 'pointer' },
 };

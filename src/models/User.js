@@ -38,6 +38,11 @@ const teachSkillSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    proofStatus: {
+      type: String,
+      enum: ['none', 'pending', 'approved', 'rejected'],
+      default: 'none',
+    },
   },
   { _id: false }
 );
@@ -74,6 +79,28 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
+    },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationStatus: {
+      type: String,
+      enum: ['unverified', 'pending', 'approved', 'rejected'],
+      default: 'unverified',
+    },
+    verificationDocument: {
+      type: String,
+      trim: true,
+    },
+    isBlocked: {
+      type: Boolean,
+      default: false,
     },
     googleId: {
       type: String,

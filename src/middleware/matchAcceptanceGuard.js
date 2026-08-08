@@ -17,18 +17,27 @@ async function verifyMatchAcceptance(matchId, sessionId) {
     const session = await Session.findById(sessionId);
     if (session) {
       if (session.matchId) {
-        const match = await Match.findById(session.matchId);
-        if (match && (match.status === 'accepted' || match.status === 'ACCEPTED')) {
-          return { accepted: true, session, match };
+        const parentMatch = await Match.findById(session.matchId);
+        if (parentMatch && (parentMatch.status === 'accepted' || parentMatch.status === 'ACCEPTED')) {
+          return { accepted: true, session, match: parentMatch };
         }
       }
-      if (session.status === 'confirmed' || session.status === 'completed') {
+      if (session.status === 'confirmed' || session.status === 'completed' || session.status === 'accepted') {
         return { accepted: true, session };
       }
       return {
         accepted: false,
         reason: `Session status is '${session.status}'. Chat is locked until match is accepted.`,
       };
+    }
+
+    // Also check if sessionId parameter was actually a Match ID
+    const match = await Match.findById(sessionId);
+    if (match && (match.status === 'accepted' || match.status === 'ACCEPTED')) {
+      return { accepted: true, match };
+    }
+    if (match && match.status !== 'accepted' && match.status !== 'ACCEPTED') {
+      return { accepted: false, reason: `Match status is '${match.status}'. Chat is locked until match is accepted.` };
     }
   }
 

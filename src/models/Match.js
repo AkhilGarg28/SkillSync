@@ -2,45 +2,53 @@ const mongoose = require('mongoose');
 
 const matchSchema = new mongoose.Schema(
   {
-    user1: {
+    sender: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+      required: true,
     },
-    user1Id: {
+    receiver: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+      required: true,
     },
-    user2: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+    skillOffered: {
+      type: String,
+      required: true, // skill sender is offering to teach
     },
-    user2Id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+    skillRequested: {
+      type: String,
+      required: true, // skill sender wants to learn from receiver
     },
     status: {
       type: String,
-      enum: ['pending', 'accepted', 'declined', 'rejected', 'completed'],
+      enum: ['pending', 'accepted', 'declined', 'completed'],
       default: 'pending',
+      index: true,
     },
-    acceptedAt: {
-      type: Date,
-    },
+    respondedAt: { type: Date }, // set when accepted/declined
+    completedAt: { type: Date }, // set when marked completed
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true } // createdAt, updatedAt
 );
 
-matchSchema.pre('save', function (next) {
-  if (this.user1 && !this.user1Id) this.user1Id = this.user1;
-  if (this.user1Id && !this.user1) this.user1 = this.user1Id;
-  if (this.user2 && !this.user2Id) this.user2Id = this.user2;
-  if (this.user2Id && !this.user2) this.user2 = this.user2Id;
-  next();
-});
+// Virtual aliases for backwards compatibility with any existing components/tests
+matchSchema.virtual('user1Id').get(function () { return this.sender; });
+matchSchema.virtual('user2Id').get(function () { return this.receiver; });
+matchSchema.virtual('senderId').get(function () { return this.sender; });
+matchSchema.virtual('receiverId').get(function () { return this.receiver; });
+matchSchema.virtual('user1').get(function () { return this.sender; });
+matchSchema.virtual('user2').get(function () { return this.receiver; });
+matchSchema.virtual('requestedSkill').get(function () { return this.skillRequested; });
+matchSchema.virtual('offeredSkill').get(function () { return this.skillOffered; });
 
-matchSchema.index({ user1Id: 1, user2Id: 1 });
-matchSchema.index({ status: 1 });
+matchSchema.set('toJSON', { virtuals: true });
+matchSchema.set('toObject', { virtuals: true });
+
+// Prevent duplicate pending requests between the same two users
+matchSchema.index(
+  { sender: 1, receiver: 1, status: 1 },
+  { unique: true, partialFilterExpression: { status: 'pending' } }
+);
 
 module.exports = mongoose.models.Match || mongoose.model('Match', matchSchema);
