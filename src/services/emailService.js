@@ -24,7 +24,8 @@ async function getTransporter() {
 
 const sendResetEmail = async (email, token) => {
   const mailTransporter = await getTransporter();
-  const resetUrl = `http://localhost:3000/reset-password?token=${token}`;
+  const frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:3000';
+  const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
 
   const mailOptions = {
     from: process.env.SMTP_USER || 'no-reply@skillsync.com',

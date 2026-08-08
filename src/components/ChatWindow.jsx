@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { getApiUrl } from '../config/api';
 
 export default function ChatWindow({
   isMatchAccepted: propIsMatchAccepted,
@@ -33,7 +34,7 @@ export default function ChatWindow({
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       };
-      const res = await fetch('/api/matches/accepted', { headers });
+      const res = await fetch(getApiUrl('/api/matches/accepted'), { headers });
       const data = await res.json();
       if (data.success) {
         setAcceptedMatches(data.data || []);
@@ -64,7 +65,7 @@ export default function ChatWindow({
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       };
-      const res = await fetch(`/api/chat-messages/session/${mId}`, { headers });
+      const res = await fetch(getApiUrl(`/api/chat-messages/session/${mId}`), { headers });
       const data = await res.json();
       if (data.success) {
         setMessages(data.data || []);
@@ -124,7 +125,7 @@ export default function ChatWindow({
           formData.append('matchId', activeMatchId);
           formData.append('messageText', inputText.trim());
 
-          const res = await fetch('/api/chat-messages/upload', {
+          const res = await fetch(getApiUrl('/api/chat-messages/upload'), {
             method: 'POST',
             headers: {
               ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -143,7 +144,7 @@ export default function ChatWindow({
           const newMsg = await onSendMessage(inputText);
           if (newMsg) setMessages((prev) => [...prev, newMsg]);
         } else {
-          const res = await fetch('/api/chat-messages', {
+          const res = await fetch(getApiUrl('/api/chat-messages'), {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

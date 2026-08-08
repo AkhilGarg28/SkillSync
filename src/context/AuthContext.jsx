@@ -1,8 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import * as authService from '../services/authService';
+import { API_BASE_URL } from '../config/api';
 
-// Initialize Axios Request Interceptor
+// Initialize Axios Base URL & Request Interceptor
+if (API_BASE_URL && API_BASE_URL !== '/api') {
+  axios.defaults.baseURL = API_BASE_URL.endsWith('/api')
+    ? API_BASE_URL.slice(0, -4)
+    : API_BASE_URL;
+}
+
 axios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('skillsync_token') || localStorage.getItem('token');

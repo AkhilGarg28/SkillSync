@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { getApiUrl } from '../config/api';
 
 export default function MyMatchesTracker({
   groupedMatches = { pending: [], sent: [], accepted: [], completed: [], declined: [] },
@@ -22,7 +23,7 @@ export default function MyMatchesTracker({
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       };
-      const res = await fetch('/api/matches/mine', { headers });
+      const res = await fetch(getApiUrl('/api/matches/mine'), { headers });
       const data = await res.json();
       if (data.success) {
         setLocalMatches(data.data || { pending: [], sent: [], accepted: [], completed: [], declined: [] });
@@ -50,7 +51,7 @@ export default function MyMatchesTracker({
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         };
         const endpoint = `/api/matches/${requestId}/${action}`;
-        await fetch(endpoint, {
+        await fetch(getApiUrl(endpoint), {
           method: 'PATCH',
           headers,
         });

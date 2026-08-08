@@ -3,8 +3,9 @@ import FilterBar from './FilterBar';
 import MatchRequestModal from './MatchRequestModal';
 import MyMatchesTracker from './MyMatchesTracker';
 import { useAuth } from '../context/AuthContext';
+import { getApiUrl } from '../config/api';
 
-export default function MatchExplorer({ apiBaseUrl = '/api/matches' }) {
+export default function MatchExplorer({ apiBaseUrl = getApiUrl('/api/matches') }) {
   const { user } = useAuth();
   const currentUserId = user?.id;
   const token = localStorage.getItem('skillsync_token') || localStorage.getItem('token');
