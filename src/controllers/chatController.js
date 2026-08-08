@@ -59,8 +59,8 @@ const verifyParticipant = async (sessionId, matchId, userId) => {
   if (sessionId) {
     const session = await Session.findById(sessionId);
     if (session) {
-      const u1 = session.user1Id ? session.user1Id.toString() : '';
-      const u2 = session.user2Id ? session.user2Id.toString() : '';
+      const u1 = session.user1Id ? session.user1Id.toString() : (session.user1 ? session.user1.toString() : '');
+      const u2 = session.user2Id ? session.user2Id.toString() : (session.user2 ? session.user2.toString() : '');
       return current === u1 || current === u2;
     }
   }
@@ -68,14 +68,18 @@ const verifyParticipant = async (sessionId, matchId, userId) => {
   if (matchId) {
     const match = await Match.findById(matchId);
     if (match) {
-      const u1 = match.user1Id ? match.user1Id.toString() : '';
-      const u2 = match.user2Id ? match.user2Id.toString() : '';
+      const u1 = match.user1Id ? match.user1Id.toString() : (match.user1 ? match.user1.toString() : '');
+      const u2 = match.user2Id ? match.user2Id.toString() : (match.user2 ? match.user2.toString() : '');
       return current === u1 || current === u2;
     }
   }
 
   return false;
 };
+
+function escapeRegex(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 exports.createChatMessage = async (req, res) => {
   try {
@@ -134,8 +138,9 @@ exports.getChatFileScoped = async (req, res) => {
       return res.status(401).json({ success: false, error: 'Not authorized: Missing user identity.' });
     }
 
+    const safeFilename = escapeRegex(filename);
     const message = await ChatMessage.findOne({
-      'fileAttachment.fileUrl': { $regex: filename },
+      'fileAttachment.fileUrl': { $regex: safeFilename, $options: 'i' },
     });
 
     if (!message) {

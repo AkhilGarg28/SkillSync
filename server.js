@@ -12,10 +12,12 @@ require('./src/config/passport');
 
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
+const matchRoutes = require('../backend/routes/match.route');
 const sessionRoutes = require('./src/routes/sessionRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
 const noteRoutes = require('./src/routes/noteRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
+const errorHandler = require('../backend/middleware/errorHandler');
 
 const app = express();
 const server = http.createServer(app);
@@ -28,6 +30,7 @@ app.use(passport.initialize());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/matches', matchRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/chat-messages', chatRoutes);
 app.use('/api/session-notes', noteRoutes);
@@ -43,6 +46,8 @@ app.get('/', (req, res) => {
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'SkillSync Module 3 API is running' });
 });
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
