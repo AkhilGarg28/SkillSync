@@ -2,8 +2,10 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
 import ProtectedRoute from './routes/ProtectedRoute';
+import { useAuth } from './context/AuthContext';
 
 // Page Views
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
@@ -22,10 +24,30 @@ import AdminRoute from './routes/AdminRoute';
 import ResetPassword from './pages/ResetPassword';
 import NotFound from './pages/NotFound';
 
+const RootRoute = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-100 gap-4">
+        <div className="w-12 h-12 rounded-full border-4 border-brand-500/20 border-t-brand-500 animate-spin"></div>
+        <p className="text-sm font-medium tracking-wide animate-pulse">Initializing Session...</p>
+      </div>
+    );
+  }
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <LandingPage />;
+};
+
 const App = () => {
   return (
     <Routes>
-      {/* Public Guest Routes */}
+      {/* Public Root & Guest Routes */}
+      <Route path="/" element={<RootRoute />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -35,15 +57,12 @@ const App = () => {
 
       {/* Protected Layout Routes */}
       <Route
-        path="/"
         element={
           <ProtectedRoute>
             <Layout />
           </ProtectedRoute>
         }
       >
-        {/* Redirect root path to dashboard */}
-        <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="profile" element={<Profile />} />
         <Route path="profile/:id" element={<PublicProfile />} />
