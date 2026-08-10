@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Calendar, Clock, Video, Plus, Check, X, Link as LinkIcon, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { getApiUrl } from '../config/api';
 
 const MySessions = () => {
   const { user } = useAuth();
@@ -18,8 +19,8 @@ const MySessions = () => {
     try {
       setLoading(true);
       const [sessionsRes, matchesRes] = await Promise.all([
-        axios.get('/api/sessions/my-sessions'),
-        axios.get('/api/matches/mine'),
+        axios.get(getApiUrl('/api/sessions/my-sessions')),
+        axios.get(getApiUrl('/api/matches/mine')),
       ]);
 
       setSessions(sessionsRes.data.data || []);
@@ -50,7 +51,7 @@ const MySessions = () => {
           ? matchDoc.user2Id?._id || matchDoc.user2Id
           : matchDoc.user1Id?._id || matchDoc.user1Id;
 
-      await axios.post('/api/sessions/propose', {
+      await axios.post(getApiUrl('/api/sessions/propose'), {
         matchId: selectedMatch,
         user1Id: user.id,
         user2Id,
@@ -68,7 +69,7 @@ const MySessions = () => {
 
   const handleRespondSession = async (sessionId, action) => {
     try {
-      await axios.put(`/api/sessions/${sessionId}/respond`, { action });
+      await axios.put(getApiUrl(`/api/sessions/${sessionId}/respond`), { action });
       fetchSessionsAndMatches();
     } catch (err) {
       alert(err.response?.data?.error || 'Action failed');
@@ -80,7 +81,7 @@ const MySessions = () => {
     if (!zoomUrl) return;
 
     try {
-      await axios.put(`/api/sessions/${sessionId}/zoom-link`, { zoomUrl });
+      await axios.put(getApiUrl(`/api/sessions/${sessionId}/zoom-link`), { zoomUrl });
       setEditingZoomId(null);
       fetchSessionsAndMatches();
     } catch (err) {

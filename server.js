@@ -33,6 +33,7 @@ const allowedOrigins = [
   process.env.CLIENT_URL,
   process.env.FRONTEND_URL,
   process.env.CORS_ORIGIN,
+  'https://skill-sync-chi-three.vercel.app',
   'http://localhost:3000',
   'http://localhost:5173',
 ].filter(Boolean);

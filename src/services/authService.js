@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = '/api/auth';
+import { getApiUrl } from '../config/api';
 
 /**
  * Register a new user
@@ -9,7 +8,7 @@ const API_URL = '/api/auth';
  * @param {string} password 
  */
 export const register = async (name, email, password) => {
-  const response = await axios.post(`${API_URL}/register`, { name, email, password });
+  const response = await axios.post(getApiUrl('/api/auth/register'), { name, email, password });
   return response.data;
 };
 
@@ -19,7 +18,7 @@ export const register = async (name, email, password) => {
  * @param {string} password 
  */
 export const login = async (email, password) => {
-  const response = await axios.post(`${API_URL}/login`, { email, password });
+  const response = await axios.post(getApiUrl('/api/auth/login'), { email, password });
   return response.data;
 };
 
@@ -28,7 +27,7 @@ export const login = async (email, password) => {
  * @param {string} email 
  */
 export const forgotPassword = async (email) => {
-  const response = await axios.post(`${API_URL}/forgot-password`, { email });
+  const response = await axios.post(getApiUrl('/api/auth/forgot-password'), { email });
   return response.data;
 };
 
@@ -38,7 +37,7 @@ export const forgotPassword = async (email) => {
  * @param {string} newPassword 
  */
 export const resetPassword = async (token, newPassword) => {
-  const response = await axios.post(`${API_URL}/reset-password`, { token, newPassword });
+  const response = await axios.post(getApiUrl('/api/auth/reset-password'), { token, newPassword });
   return response.data;
 };
 
@@ -46,5 +45,5 @@ export const resetPassword = async (token, newPassword) => {
  * Redirect browser to Google OAuth initiation endpoint
  */
 export const initiateGoogleLogin = () => {
-  window.location.href = `${API_URL}/google`;
+  window.location.href = getApiUrl('/api/auth/google');
 };

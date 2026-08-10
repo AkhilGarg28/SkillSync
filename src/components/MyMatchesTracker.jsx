@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getApiUrl } from '../config/api';
 
@@ -198,21 +199,21 @@ export default function MyMatchesTracker({
 
                   <div style={styles.actions}>
                     {otherUserId && (
-                      <a
-                        href={`/profile/${otherUserId}`}
+                      <Link
+                        to={`/profile/${otherUserId}`}
                         style={styles.viewBtn}
                       >
                         👤 View Profile
-                      </a>
+                      </Link>
                     )}
                     {item.status === 'accepted' && (
                       <>
-                        <a
-                          href="/sessions"
+                        <Link
+                          to="/sessions"
                           style={styles.scheduleSessionBtn}
                         >
                           📹 Schedule Zoom Session
-                        </a>
+                        </Link>
                         <button
                           onClick={() => handleAction(item._id, 'complete')}
                           style={styles.completeBtn}

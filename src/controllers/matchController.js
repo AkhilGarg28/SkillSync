@@ -416,7 +416,9 @@ exports.respondToMatch = async (req, res, next) => {
     return exports.acceptMatch(req, res, next);
   } else if (action === 'decline') {
     return exports.declineMatch(req, res, next);
+  } else if (action === 'complete') {
+    return exports.completeMatch(req, res, next);
   } else {
-    return res.status(400).json({ success: false, error: "Invalid action. Use 'accept' or 'decline'." });
+    return res.status(400).json({ success: false, error: "Invalid action. Use 'accept', 'decline', or 'complete'." });
   }
 };

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import FilterBar from './FilterBar';
 import MatchRequestModal from './MatchRequestModal';
 import MyMatchesTracker from './MyMatchesTracker';
@@ -52,7 +53,7 @@ export default function MatchExplorer({ apiBaseUrl = getApiUrl('/api/matches') }
         setHasMore(Boolean(data.hasMore));
         setPage(pageNum);
       } else {
-        showNotification(data.message || 'Failed to fetch matches', 'error');
+        showNotification(data.error || data.message || 'Failed to fetch matches', 'error');
       }
     } catch (err) {
       showNotification('Network connection error loading explore feed', 'error');
@@ -111,7 +112,7 @@ export default function MatchExplorer({ apiBaseUrl = getApiUrl('/api/matches') }
         setSelectedCandidate(null);
         fetchExploreMatches(1, false);
       } else {
-        showNotification(data.message || 'Failed to send request', 'error');
+        showNotification(data.error || data.message || 'Failed to send request', 'error');
       }
     } catch (err) {
       showNotification('Error sending match request', 'error');
@@ -132,7 +133,7 @@ export default function MatchExplorer({ apiBaseUrl = getApiUrl('/api/matches') }
         showNotification(`Match request ${action}ed successfully!`, 'success');
         fetchMyMatches();
       } else {
-        showNotification(data.message || 'Failed to respond to request', 'error');
+        showNotification(data.error || data.message || 'Failed to respond to request', 'error');
       }
     } catch (err) {
       showNotification('Error responding to match request', 'error');
@@ -249,12 +250,12 @@ export default function MatchExplorer({ apiBaseUrl = getApiUrl('/api/matches') }
                       </div>
 
                       <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-                        <a
-                          href={`/profile/${candidateId}`}
+                        <Link
+                          to={`/profile/${candidateId}`}
                           style={styles.viewProfileBtn}
                         >
                           👤 View Profile
-                        </a>
+                        </Link>
                         <button
                           onClick={() => handleOpenRequestModal({ candidate, matchedSkills: item.matchedSkills })}
                           style={styles.requestBtn}

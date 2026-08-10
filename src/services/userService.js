@@ -1,13 +1,12 @@
 import axios from 'axios';
-
-const API_URL = '/api/users';
+import { getApiUrl } from '../config/api';
 
 /**
  * Get user profile details
  * @param {string} id - User ID
  */
 export const getProfile = async (id) => {
-  const response = await axios.get(`${API_URL}/${id}`);
+  const response = await axios.get(getApiUrl(`/api/users/${id}`));
   return response.data;
 };
 
@@ -17,7 +16,7 @@ export const getProfile = async (id) => {
  * @param {Object} profileData - Profile details to update
  */
 export const updateProfile = async (id, profileData) => {
-  const response = await axios.put(`${API_URL}/${id}`, profileData);
+  const response = await axios.put(getApiUrl(`/api/users/${id}`), profileData);
   return response.data;
 };
 
@@ -27,7 +26,7 @@ export const updateProfile = async (id, profileData) => {
  * @param {Object} skillData - { skillName, experienceLevel, proofLink }
  */
 export const addTeachSkill = async (id, skillData) => {
-  const response = await axios.post(`${API_URL}/${id}/skills-teach`, skillData);
+  const response = await axios.post(getApiUrl(`/api/users/${id}/skills-teach`), skillData);
   return response.data;
 };
 
@@ -37,7 +36,7 @@ export const addTeachSkill = async (id, skillData) => {
  * @param {Object} skillData - { skillName, desiredLevel }
  */
 export const addLearnSkill = async (id, skillData) => {
-  const response = await axios.post(`${API_URL}/${id}/skills-learn`, skillData);
+  const response = await axios.post(getApiUrl(`/api/users/${id}/skills-learn`), skillData);
   return response.data;
 };
 
@@ -46,6 +45,6 @@ export const addLearnSkill = async (id, skillData) => {
  * @param {string} id - User ID
  */
 export const getBadges = async (id) => {
-  const response = await axios.get(`${API_URL}/${id}/badges`);
+  const response = await axios.get(getApiUrl(`/api/users/${id}/badges`));
   return response.data;
 };

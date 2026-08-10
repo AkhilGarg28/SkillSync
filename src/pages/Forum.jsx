@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { MessageSquare, ThumbsUp, Send, Trash2, Plus, Sparkles, User, Tag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { getApiUrl } from '../config/api';
 
 const Forum = () => {
   const { user } = useAuth();
@@ -16,7 +17,7 @@ const Forum = () => {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('/api/forum');
+      const res = await axios.get(getApiUrl('/api/forum'));
       setPosts(res.data.data);
     } catch (err) {
       console.error(err);
@@ -33,7 +34,7 @@ const Forum = () => {
     e.preventDefault();
     if (!title || !content) return;
     try {
-      await axios.post('/api/forum', { title, content, category });
+      await axios.post(getApiUrl('/api/forum'), { title, content, category });
       setTitle('');
       setContent('');
       setShowNewModal(false);
@@ -45,7 +46,7 @@ const Forum = () => {
 
   const handleLike = async (postId) => {
     try {
-      await axios.put(`/api/forum/${postId}/like`);
+      await axios.put(getApiUrl(`/api/forum/${postId}/like`));
       fetchPosts();
     } catch (err) {
       alert('Failed to like post');
@@ -56,7 +57,7 @@ const Forum = () => {
     const text = commentInput[postId];
     if (!text) return;
     try {
-      await axios.post(`/api/forum/${postId}/comments`, { text });
+      await axios.post(getApiUrl(`/api/forum/${postId}/comments`), { text });
       setCommentInput({ ...commentInput, [postId]: '' });
       fetchPosts();
     } catch (err) {
@@ -67,7 +68,7 @@ const Forum = () => {
   const handleDeletePost = async (postId) => {
     if (!window.confirm('Delete this post?')) return;
     try {
-      await axios.delete(`/api/forum/${postId}`);
+      await axios.delete(getApiUrl(`/api/forum/${postId}`));
       fetchPosts();
     } catch (err) {
       alert('Failed to delete post');

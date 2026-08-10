@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getApiUrl } from '../config/api';
 
@@ -191,9 +192,9 @@ export default function ChatWindow({
             Status: <strong>Match Pending Acceptance</strong>
           </div>
           <div style={{ marginTop: '20px' }}>
-            <a href="/matches" style={styles.exploreLink}>
+            <Link to="/matches" style={styles.exploreLink}>
               🔍 Explore & Request Matches
-            </a>
+            </Link>
           </div>
         </div>
       </div>
