@@ -22,7 +22,7 @@ export const SkillChip = ({ name, level, type = 'teach' }) => {
 };
 
 // 2. SkillCard: Displays single skill in profile/dashboard views
-export const SkillCard = ({ name, level, proofLink, type = 'teach', onRemove }) => {
+export const SkillCard = ({ name, level, proofLink, proofStatus, rejectionReason, type = 'teach', onRemove }) => {
   const isTeach = type === 'teach';
 
   return (
@@ -33,7 +33,15 @@ export const SkillCard = ({ name, level, proofLink, type = 'teach', onRemove }) 
             {isTeach ? <GraduationCap size={20} /> : <BookOpen size={20} />}
           </div>
           <div>
-            <h4 className="text-sm font-bold text-slate-100">{name}</h4>
+            <div className="flex items-center gap-2">
+              <h4 className="text-sm font-bold text-slate-100">{name}</h4>
+              {isTeach && proofStatus === 'approved' && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <Sparkles size={10} />
+                  Verified
+                </span>
+              )}
+            </div>
             <p className="text-xs text-slate-400 mt-0.5">{isTeach ? 'Teaches' : 'Wants to Learn'} • {level}</p>
           </div>
         </div>
@@ -50,11 +58,26 @@ export const SkillCard = ({ name, level, proofLink, type = 'teach', onRemove }) 
       </div>
 
       {isTeach && proofLink && (
-        <div className="mt-3 flex items-center gap-1.5 text-xs text-brand-400 hover:underline">
-          <Link2 size={12} />
-          <a href={proofLink} target="_blank" rel="noopener noreferrer" className="truncate">
-            Credentials Proof
+        <div className="mt-3 flex items-center justify-between text-xs">
+          <a href={proofLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-brand-400 hover:underline truncate">
+            <Link2 size={12} />
+            <span>Credentials Proof</span>
           </a>
+          {proofStatus && proofStatus !== 'none' && (
+            <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
+              proofStatus === 'approved' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+              proofStatus === 'rejected' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+              'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+            }`}>
+              {proofStatus}
+            </span>
+          )}
+        </div>
+      )}
+
+      {isTeach && proofStatus === 'rejected' && rejectionReason && (
+        <div className="mt-2 text-[11px] text-red-400 bg-red-500/10 p-2 rounded-lg border border-red-500/20">
+          <strong className="font-bold">Rejection Reason:</strong> {rejectionReason}
         </div>
       )}
     </div>
@@ -177,6 +200,8 @@ export const SkillsList = ({ skills = [], type = 'teach', onRemove }) => {
           name={skill.skillName}
           level={type === 'teach' ? skill.experienceLevel : skill.desiredLevel}
           proofLink={skill.proofLink}
+          proofStatus={skill.proofStatus}
+          rejectionReason={skill.rejectionReason}
           type={type}
           onRemove={onRemove ? () => onRemove(idx) : null}
         />

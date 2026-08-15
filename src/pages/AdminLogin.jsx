@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ShieldCheck, Lock, Mail, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { getApiUrl } from '../config/api';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
@@ -18,7 +19,7 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/login', { email, password });
+      const response = await axios.post(getApiUrl('/api/auth/login'), { email, password });
       const { token, user: userData } = response.data.data;
 
       if (userData.role !== 'admin') {

@@ -33,8 +33,13 @@ const Login = () => {
     setLoading(true);
     setError('');
     try {
-      await login(data.email, data.password);
-      navigate(from, { replace: true });
+      const res = await login(data.email, data.password);
+      const userData = res?.data?.data?.user || res?.data?.user;
+      if (userData?.role === 'admin') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Invalid email or password.');
     } finally {

@@ -9,12 +9,14 @@ const {
   proposeSession,
   respondToSession,
   updateZoomLink,
+  disputeSession,
 } = require('../controllers/sessionController');
 
 router.get('/my-sessions', protect, getSessionsByUser);
 router.post('/propose', proposeSession);
 router.put('/:id/respond', respondToSession);
 router.put('/:id/zoom-link', protect, updateZoomLink);
+router.post('/:id/dispute', protect, disputeSession);
 
 router.post('/', createSession);
 router.get('/:id', getSessionById);

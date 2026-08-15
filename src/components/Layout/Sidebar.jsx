@@ -1,12 +1,15 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutGrid, User, Compass, Users, MessageSquare, MessageCircle, Calendar, Sparkles } from 'lucide-react';
+import { LayoutGrid, User, Compass, Users, MessageSquare, MessageCircle, Calendar, Sparkles, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = ({ isOpen, onClose }) => {
   const { user } = useAuth();
 
   const links = [
+    ...(user?.role === 'admin'
+      ? [{ to: '/admin', icon: ShieldCheck, label: 'Admin Control Center', isAdmin: true }]
+      : []),
     { to: '/dashboard', icon: LayoutGrid, label: 'Dashboard' },
     { to: '/profile', icon: User, label: 'My Profile' },
     { to: '/matches', icon: Compass, label: 'Explore Matches' },
@@ -42,7 +45,11 @@ const Sidebar = ({ isOpen, onClose }) => {
               onClick={onClose}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold border transition duration-300 ${
-                  isActive
+                  link.isAdmin
+                    ? isActive
+                      ? 'bg-amber-500/20 border-amber-500/40 text-amber-300 shadow-md shadow-amber-500/10'
+                      : 'bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20'
+                    : isActive
                     ? 'bg-brand-600/10 border-brand-500/30 text-brand-300 shadow-md shadow-brand-500/5'
                     : 'bg-transparent border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40 hover:border-slate-900'
                 }`

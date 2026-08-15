@@ -8,7 +8,9 @@
     "dev": "nodemon server.js",
     "dev:client": "vite",
     "build:client": "vite build",
-    "test": "jest --detectOpenHandles --forceExit"
+    "test": "jest --detectOpenHandles --forceExit",
+    "seed:admin": "node scripts/seedAdmin.js",
+    "seed:demo": "node scripts/seedDemoData.js"
   },
   "keywords": [],
   "author": "AkhilGarg28",

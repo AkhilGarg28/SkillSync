@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
+import AnnouncementBanner from '../AnnouncementBanner';
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans select-none selection:bg-brand-500 selection:text-white">
+      {/* Platform Announcement Banner */}
+      <AnnouncementBanner />
+
       {/* Header Navigation */}
       <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 

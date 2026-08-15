@@ -22,6 +22,8 @@ const reportRoutes = require('./src/routes/reportRoutes');
 const forumRoutes = require('./src/routes/forumRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const matchRoutes = require('./src/routes/matchRoutes');
+const categoryRoutes = require('./src/routes/categoryRoutes');
+const announcementRoutes = require('./src/routes/announcementRoutes');
 const path = require('path');
 
 const app = express();
@@ -64,6 +66,8 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/verification', verificationRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/forum', forumRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/announcements', announcementRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.get('/', (req, res) => {

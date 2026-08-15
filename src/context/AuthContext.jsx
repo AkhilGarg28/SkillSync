@@ -23,6 +23,18 @@ axios.interceptors.request.use(
   }
 );
 
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('skillsync_token');
+      localStorage.removeItem('token');
+      localStorage.removeItem('skillsync_user');
+    }
+    return Promise.reject(error);
+  }
+);
+
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -85,6 +97,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('skillsync_token');
+    localStorage.removeItem('token');
     localStorage.removeItem('skillsync_user');
     setUser(null);
   };

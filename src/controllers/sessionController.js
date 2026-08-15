@@ -240,3 +240,49 @@ exports.updateZoomLink = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+exports.disputeSession = async (req, res) => {
+  try {
+    const { reason, details, initiatorComment } = req.body;
+    if (!reason) {
+      return res.status(400).json({ success: false, error: 'Reason for dispute is required.' });
+    }
+
+    const session = await Session.findById(req.params.id);
+    if (!session) {
+      return res.status(404).json({ success: false, error: 'Session not found.' });
+    }
+
+    const currentUserId = req.user ? String(req.user.id) : null;
+    const user1Str = String(session.user1Id);
+    const user2Str = String(session.user2Id);
+
+    if (currentUserId && currentUserId !== user1Str && currentUserId !== user2Str) {
+      return res.status(403).json({ success: false, error: 'Forbidden: You are not a participant in this session.' });
+    }
+
+    const respondentId = currentUserId === user1Str ? session.user2Id : session.user1Id;
+    const Dispute = require('../models/Dispute');
+
+    const dispute = await Dispute.create({
+      sessionId: session._id,
+      initiatorId: currentUserId || session.user1Id,
+      respondentId,
+      reason,
+      details: details || '',
+      initiatorComment: initiatorComment || details || '',
+      status: 'pending',
+    });
+
+    session.status = 'disputed';
+    await session.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Session flagged for dispute resolution.',
+      data: dispute,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};

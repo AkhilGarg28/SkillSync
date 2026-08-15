@@ -43,6 +43,11 @@ const teachSkillSchema = new mongoose.Schema(
       enum: ['none', 'pending', 'approved', 'rejected'],
       default: 'none',
     },
+    rejectionReason: {
+      type: String,
+      trim: true,
+      default: '',
+    },
   },
   { _id: false }
 );
@@ -84,6 +89,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['user', 'admin'],
       default: 'user',
+    },
+    adminRole: {
+      type: String,
+      enum: ['super_admin', 'support_admin'],
+      default: 'super_admin',
     },
     isVerified: {
       type: Boolean,

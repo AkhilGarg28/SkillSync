@@ -43,7 +43,7 @@ exports.register = async (req, res) => {
     });
 
     // Sign JWT
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user._id, role: user.role || 'user' }, JWT_SECRET, { expiresIn: '7d' });
 
     res.status(201).json({
       success: true,
@@ -89,6 +89,13 @@ exports.login = async (req, res) => {
       });
     }
 
+    if (user.isBlocked) {
+      return res.status(403).json({
+        success: false,
+        error: 'Forbidden: Your account has been suspended/blocked.',
+      });
+    }
+
     // Verify password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
@@ -99,7 +106,7 @@ exports.login = async (req, res) => {
     }
 
     // Sign JWT
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user._id, role: user.role || 'user' }, JWT_SECRET, { expiresIn: '7d' });
 
     res.status(200).json({
       success: true,
@@ -239,7 +246,7 @@ exports.googleCallback = async (req, res) => {
       });
     }
 
-    const token = jwt.sign({ id: req.user._id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: req.user._id, role: req.user.role || 'user' }, JWT_SECRET, { expiresIn: '7d' });
 
     res.status(200).json({
       success: true,
@@ -249,6 +256,7 @@ exports.googleCallback = async (req, res) => {
           id: req.user._id,
           name: req.user.name,
           email: req.user.email,
+          role: req.user.role || 'user',
         },
       },
     });

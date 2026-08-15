@@ -25,7 +25,7 @@ const sessionSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['requested', 'confirmed', 'completed', 'cancelled'],
+      enum: ['requested', 'confirmed', 'completed', 'cancelled', 'disputed'],
       default: 'requested',
     },
     videoCallLink: {
